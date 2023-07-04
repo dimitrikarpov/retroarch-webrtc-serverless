@@ -7,7 +7,7 @@ type Props = {
   dataChannerRef: React.MutableRefObject<RTCDataChannel | null>
 }
 
-export const WatcherConnectScreen: React.FunctionComponent<Props> = ({
+export const ViewerConnectScreen: React.FunctionComponent<Props> = ({
   peerConnectionRef,
   dataChannerRef,
 }) => {

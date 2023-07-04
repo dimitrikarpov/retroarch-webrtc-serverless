@@ -1,9 +1,9 @@
 import React, { useRef, useState } from "react"
 import { SelectRoleScreen } from "./components/select-role-screen/select-role-screen"
-import { StreamerConnectScreen } from "./components/streamer-connect-screen/streamer-connect-screen"
-import { WatcherConnectScreen } from "./components/watcher-connect-screen/watcher-connect-screen"
+import { PlayerConnectScreen } from "./components/player-connect-screen/player-connect-screen"
+import { ViewerConnectScreen } from "./components/viewer-connect-screen/viewer-connect-screen"
 
-export type Role = "streamer" | "watcher"
+export type Role = "player" | "viewer"
 
 function App() {
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null)
@@ -14,14 +14,14 @@ function App() {
   return (
     <div>
       {!role && <SelectRoleScreen setRole={setRole} />}
-      {role === "streamer" && (
-        <StreamerConnectScreen
+      {role === "player" && (
+        <PlayerConnectScreen
           peerConnectionRef={peerConnectionRef}
           dataChannerRef={dataChannelRef}
         />
       )}
-      {role === "watcher" && (
-        <WatcherConnectScreen
+      {role === "viewer" && (
+        <ViewerConnectScreen
           peerConnectionRef={peerConnectionRef}
           dataChannerRef={dataChannelRef}
         />

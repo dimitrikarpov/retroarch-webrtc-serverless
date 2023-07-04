@@ -13,17 +13,17 @@ export const SelectRoleScreen: React.FunctionComponent<Props> = ({
 
       <div className="mt-6 flex h-[200px] gap-4">
         <div
-          onClick={() => setRole("streamer")}
+          onClick={() => setRole("player")}
           className="flex flex-grow cursor-pointer items-center justify-center rounded-md border border-gray-400 transition hover:bg-slate-200 hover:shadow-md"
         >
-          streamer
+          play the game and stream gameplay
         </div>
 
         <div
-          onClick={() => setRole("watcher")}
+          onClick={() => setRole("viewer")}
           className="flex flex-grow cursor-pointer items-center justify-center rounded-md border border-gray-400 transition hover:bg-slate-200 hover:shadow-md"
         >
-          watcher
+          connect to player to watch gameplay
         </div>
       </div>
     </div>
