@@ -1,26 +1,41 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useRef, useState } from "react"
+import { SelectRoleScreen } from "./components/select-role-screen/select-role-screen"
+import { StreamerConnectScreen } from "./components/streamer-connect-screen/streamer-connect-screen"
+import { WatcherConnectScreen } from "./components/watcher-connect-screen/watcher-connect-screen"
+
+export type Role = "streamer" | "watcher"
 
 function App() {
+  const peerConnectionRef = useRef<RTCPeerConnection | null>(null)
+  const dataChannelRef = useRef<RTCDataChannel | null>(null)
+
+  const [role, setRole] = useState<Role>()
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      {!role && <SelectRoleScreen setRole={setRole} />}
+      {role === "streamer" && (
+        <StreamerConnectScreen
+          peerConnectionRef={peerConnectionRef}
+          dataChannerRef={dataChannelRef}
+        />
+      )}
+      {role === "watcher" && (
+        <WatcherConnectScreen
+          peerConnectionRef={peerConnectionRef}
+          dataChannerRef={dataChannelRef}
+        />
+      )}
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
+
+const config = {
+  iceServers: [
+    {
+      urls: "stun:stun.1.google.com:19302",
+    },
+  ],
+}
