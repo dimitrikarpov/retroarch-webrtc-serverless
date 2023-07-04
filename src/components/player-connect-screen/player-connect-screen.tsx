@@ -1,55 +1,26 @@
 import { ChangeEventHandler, FunctionComponent, useState } from "react"
 import { Button } from "../ui/button/button"
 import { Card } from "../ui/button/card"
-import { logStatus } from "../../lib/logStatus"
+import { useConnection } from "../connection-context"
 
-type Props = {
-  peerConnectionRef: React.MutableRefObject<RTCPeerConnection | null>
-  dataChannerRef: React.MutableRefObject<RTCDataChannel | null>
-}
+type Props = {}
 
-export const PlayerConnectScreen: FunctionComponent<Props> = ({
-  peerConnectionRef,
-  dataChannerRef,
-}) => {
+export const PlayerConnectScreen: FunctionComponent<Props> = ({}) => {
   const [offer, setOffer] = useState<string>()
   const [answer, setAnswer] = useState<string>()
-  const [isAnswerConfirmed, setIsAnswerConfirmed] = useState(false)
+  const { peerConnectionRef } = useConnection()
 
   const onCreateClick = async () => {
-    const pc = new RTCPeerConnection(config)
-
-    pc.oniceconnectionstatechange = (e) => console.log(pc.iceConnectionState)
-    pc.onconnectionstatechange = (ev) => logStatus(pc)
-    pc.oniceconnectionstatechange = (ev) => logStatus(pc)
-
-    const dc = pc.createDataChannel("chat", {
-      negotiated: true,
-      id: 0,
-    })
-    // dc.onopen = () => chat.select()
-    dc.onmessage = (e) => console.log(`> ${e.data}`)
-
-    peerConnectionRef.current = pc
-    dataChannerRef.current = dc
-
     /* Create Offer */
-    // setIsOfferCreatingInProgress(true)
-    const a = await pc.createOffer()
-    await pc.setLocalDescription(a)
+    await peerConnectionRef.current?.setLocalDescription(
+      await peerConnectionRef.current?.createOffer(),
+    )
 
-    pc.onicecandidate = ({ candidate }) => {
+    peerConnectionRef.current!.onicecandidate = ({ candidate }) => {
       if (candidate) return
-      //   offerArea.value = pc.localDescription.sdp
-      //   offerArea.select()
-      //   answer.placeholder = "Paste answer here. And Press Enter"
 
-      console.log({ offer: pc.localDescription?.sdp })
-
-      setOffer(pc.localDescription?.sdp)
+      setOffer(peerConnectionRef.current?.localDescription?.sdp)
     }
-
-    // setIsOfferCreatingInProgress(false)
   }
 
   const onAnswerChange: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
@@ -57,6 +28,7 @@ export const PlayerConnectScreen: FunctionComponent<Props> = ({
   }
 
   const onAnswerConfirm = () => {
+    /* set answer */
     peerConnectionRef.current?.setRemoteDescription({
       type: "answer",
       sdp: answer,
@@ -95,12 +67,4 @@ export const PlayerConnectScreen: FunctionComponent<Props> = ({
       </Card>
     </div>
   )
-}
-
-const config = {
-  iceServers: [
-    {
-      urls: "stun:stun.1.google.com:19302",
-    },
-  ],
 }

@@ -1,62 +1,43 @@
 import { ChangeEventHandler, useState } from "react"
 import { Button } from "../ui/button/button"
-import { logStatus } from "../../lib/logStatus"
+import { useConnection } from "../connection-context"
 
-type Props = {
-  peerConnectionRef: React.MutableRefObject<RTCPeerConnection | null>
-  dataChannerRef: React.MutableRefObject<RTCDataChannel | null>
-}
+type Props = {}
 
-export const ViewerConnectScreen: React.FunctionComponent<Props> = ({
-  peerConnectionRef,
-  dataChannerRef,
-}) => {
+export const ViewerConnectScreen: React.FunctionComponent<Props> = ({}) => {
   const [offer, setOffer] = useState<string>()
   const [isConfirmed, setIsConfirmed] = useState(false)
   const [answer, setAnswer] = useState<string>()
+  const { peerConnectionRef, dataChannelRef } = useConnection()
 
   const onOfferChange: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
     setOffer(e.target.value)
   }
 
   const onOfferConfirm = async () => {
-    const pc = new RTCPeerConnection(config)
-
-    pc.oniceconnectionstatechange = (e) => console.log(pc.iceConnectionState)
-    pc.onconnectionstatechange = (ev) => logStatus(pc)
-    pc.oniceconnectionstatechange = (ev) => logStatus(pc)
-
-    const dc = pc.createDataChannel("chat", {
-      negotiated: true,
-      id: 0,
-    })
-    // dc.onopen = () => chat.select()
-    dc.onmessage = (e) => console.log(`> ${e.data}`)
-
-    peerConnectionRef.current = pc
-    dataChannerRef.current = dc
-
     setIsConfirmed(true)
 
     /* create answer */
 
     console.log({ offer })
 
-    await pc.setRemoteDescription({
+    await peerConnectionRef.current?.setRemoteDescription({
       type: "offer",
       sdp: offer,
     })
 
-    await pc.setLocalDescription(await pc.createAnswer())
-    pc.onicecandidate = ({ candidate }) => {
+    await peerConnectionRef.current?.setLocalDescription(
+      await peerConnectionRef.current?.createAnswer(),
+    )
+    peerConnectionRef.current!.onicecandidate = ({ candidate }) => {
       if (candidate) return
 
-      setAnswer(pc.localDescription?.sdp)
+      setAnswer(peerConnectionRef.current?.localDescription?.sdp)
     }
   }
 
   const onSendMessageClick = () => {
-    dataChannerRef.current?.send("YYHUHUHUHUHUHUHUHU")
+    dataChannelRef.current?.send("YYHUHUHUHUHUHUHUHU")
   }
 
   return (
@@ -87,12 +68,4 @@ export const ViewerConnectScreen: React.FunctionComponent<Props> = ({
       )}
     </div>
   )
-}
-
-const config = {
-  iceServers: [
-    {
-      urls: "stun:stun.1.google.com:19302",
-    },
-  ],
 }
