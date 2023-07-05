@@ -3,6 +3,7 @@ import React from "react"
 type ConnectionContext = {
   peerConnectionRef: React.MutableRefObject<RTCPeerConnection | null>
   dataChannelRef: React.MutableRefObject<RTCDataChannel | null>
+  connectionState: RTCPeerConnectionState
 }
 
 export const ConnectionContext = React.createContext<ConnectionContext | null>(

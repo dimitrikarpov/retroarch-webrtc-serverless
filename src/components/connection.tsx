@@ -1,6 +1,5 @@
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { ConnectionContext } from "./connection-context"
-import { logStatus } from "../lib/logStatus"
 
 type Props = {
   children?: React.ReactNode
@@ -9,13 +8,20 @@ type Props = {
 export const Connection: React.FunctionComponent<Props> = ({ children }) => {
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null)
   const dataChannelRef = useRef<RTCDataChannel | null>(null)
+  const [connectionState, setConnectionState] =
+    useState<RTCPeerConnectionState>("new")
 
   useEffect(() => {
     const pc = new RTCPeerConnection(config)
 
-    pc.oniceconnectionstatechange = (e) => console.log(pc.iceConnectionState)
-    pc.onconnectionstatechange = (ev) => logStatus(pc)
-    pc.oniceconnectionstatechange = (ev) => logStatus(pc)
+    pc.addEventListener(
+      "connectionstatechange",
+      () => {
+        /* more about connection state https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/connectionstatechange_event */
+        setConnectionState(pc.connectionState)
+      },
+      true,
+    )
 
     const dc = pc.createDataChannel("chat", {
       negotiated: true,
@@ -29,7 +35,9 @@ export const Connection: React.FunctionComponent<Props> = ({ children }) => {
   }, [])
 
   return (
-    <ConnectionContext.Provider value={{ peerConnectionRef, dataChannelRef }}>
+    <ConnectionContext.Provider
+      value={{ peerConnectionRef, dataChannelRef, connectionState }}
+    >
       {children}
     </ConnectionContext.Provider>
   )

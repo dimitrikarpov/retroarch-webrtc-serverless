@@ -1,21 +1,24 @@
-import { ChangeEventHandler, useState } from "react"
+import { ChangeEventHandler, useEffect, useState } from "react"
 import { Button } from "../ui/button/button"
 import { useConnection } from "../connection-context"
+import { Textarea } from "../ui/button/textarea"
+import { useCopyToClipboard } from "../../lib/use-copy-to-clipboard"
 
-type Props = {}
-
-export const ViewerConnectScreen: React.FunctionComponent<Props> = ({}) => {
+export const ViewerConnectScreen = () => {
   const [offer, setOffer] = useState<string>()
-  const [isConfirmed, setIsConfirmed] = useState(false)
   const [answer, setAnswer] = useState<string>()
-  const { peerConnectionRef, dataChannelRef } = useConnection()
+  const { peerConnectionRef, dataChannelRef, connectionState } = useConnection()
+  const [value, copy] = useCopyToClipboard()
+  const [phase, setPhase] = useState<
+    "wait-offer" | "copy-answer" | "connected" | "wait-connection"
+  >("wait-offer")
 
   const onOfferChange: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
     setOffer(e.target.value)
   }
 
-  const onOfferConfirm = async () => {
-    setIsConfirmed(true)
+  const onOfferSet = async () => {
+    setPhase("copy-answer")
 
     /* create answer */
 
@@ -40,26 +43,49 @@ export const ViewerConnectScreen: React.FunctionComponent<Props> = ({}) => {
     dataChannelRef.current?.send("YYHUHUHUHUHUHUHUHU")
   }
 
+  useEffect(() => {
+    if (connectionState === "connected") {
+      setPhase("connected")
+    }
+  }, [connectionState])
+
+  const onAnswerCopyClick = () => {
+    if (!answer) return
+
+    copy(answer)
+    setPhase("wait-connection")
+  }
+
   return (
     <div>
       <h2>Hello, Viewer!</h2>
 
-      {!isConfirmed && (
+      {phase === "wait-offer" && (
         <>
           <p>Paste here Streamer's Connection Offer</p>
 
           <form>
-            <textarea value={offer} onChange={onOfferChange} />
-            <Button onClick={onOfferConfirm}>set offer</Button>
+            <Textarea value={offer} onChange={onOfferChange} />
+            <Button onClick={onOfferSet}>set offer</Button>
           </form>
         </>
       )}
 
-      {answer && (
+      {phase === "copy-answer" && (
         <>
           <p>Send these Answer to the Streamer</p>
 
-          <textarea disabled value={answer} className="h-40 w-full" />
+          <Textarea disabled value={answer} className="h-40 w-full" />
+          <Button onClick={onAnswerCopyClick}>copy Answer to clipboard</Button>
+          {value && <p className="text-orange-700">copied</p>}
+        </>
+      )}
+
+      {phase === "wait-connection" && <p>Waiting for connection...</p>}
+
+      {phase === "connected" && (
+        <>
+          <p className="text-lg text-green-500">Connected !!!</p>
 
           <Button variant={"secondary"} onClick={onSendMessageClick}>
             send a test message
@@ -69,3 +95,10 @@ export const ViewerConnectScreen: React.FunctionComponent<Props> = ({}) => {
     </div>
   )
 }
+
+// phases:
+// - wait-offer
+// - copy answer
+// - connected
+
+//
