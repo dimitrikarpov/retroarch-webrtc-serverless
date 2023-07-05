@@ -21,9 +21,6 @@ export const ViewerConnectScreen = () => {
     setPhase("copy-answer")
 
     /* create answer */
-
-    console.log({ offer })
-
     await peerConnectionRef.current?.setRemoteDescription({
       type: "offer",
       sdp: offer,

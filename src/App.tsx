@@ -10,7 +10,7 @@ function App() {
   const [role, setRole] = useState<Role>()
 
   return (
-    <div>
+    <div className="ml-auto mr-auto mt-24 w-fit">
       {!role && <SelectRoleScreen setRole={setRole} />}
       <Connection>
         {role === "player" && <PlayerConnectScreen />}
