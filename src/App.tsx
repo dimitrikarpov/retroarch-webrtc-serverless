@@ -4,6 +4,7 @@ import { PlayerConnectScreen } from "./components/player-connect-screen/player-c
 import { ViewerConnectScreen } from "./components/viewer-connect-screen/viewer-connect-screen"
 import { Connection } from "./components/connection"
 import { OfflinePlayScreen } from "./components/offline-play-screen/offline-play-screen"
+import { StartScreen } from "./components/start-screen/start-screen"
 
 export type Role = "player" | "viewer" | "offline"
 
@@ -12,11 +13,14 @@ function App() {
 
   return (
     <div className="ml-auto mr-auto mt-24 w-fit">
-      {!role && <SelectRoleScreen setRole={setRole} />}
+      {/* {!role && <SelectRoleScreen setRole={setRole} />}
       <Connection>
         {role === "player" && <PlayerConnectScreen />}
         {role === "viewer" && <ViewerConnectScreen />}
         {role === "offline" && <OfflinePlayScreen />}
+      </Connection> */}
+      <Connection>
+        <StartScreen />
       </Connection>
     </div>
   )
