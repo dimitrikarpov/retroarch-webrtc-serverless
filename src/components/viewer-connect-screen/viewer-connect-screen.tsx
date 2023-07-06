@@ -1,4 +1,4 @@
-import { ChangeEventHandler, useEffect, useState } from "react"
+import React, { ChangeEventHandler, useEffect, useRef, useState } from "react"
 import { Button } from "../ui/button/button"
 import { useConnection } from "../connection-context"
 import { Textarea } from "../ui/button/textarea"
@@ -13,12 +13,23 @@ export const ViewerConnectScreen = () => {
     "wait-offer" | "copy-answer" | "connected" | "wait-connection"
   >("wait-offer")
 
+  const videoRef = useRef<HTMLVideoElement>(null)
+
   const onOfferChange: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
     setOffer(e.target.value)
   }
 
   const onOfferSet = async () => {
     setPhase("copy-answer")
+
+    peerConnectionRef.current!.ontrack = async (event) => {
+      console.log("track event", event)
+
+      const [remoteStream] = event.streams
+      videoRef.current!.srcObject = remoteStream
+
+      videoRef.current?.play()
+    }
 
     /* create answer */
     await peerConnectionRef.current?.setRemoteDescription({
@@ -29,11 +40,21 @@ export const ViewerConnectScreen = () => {
     await peerConnectionRef.current?.setLocalDescription(
       await peerConnectionRef.current?.createAnswer(),
     )
+
     peerConnectionRef.current!.onicecandidate = ({ candidate }) => {
       if (candidate) return
 
       setAnswer(peerConnectionRef.current?.localDescription?.sdp)
     }
+
+    // peerConnectionRef.current!.addEventListener("track", async (event) => {
+    //   console.log("track event", event)
+
+    //   const [remoteStream] = event.streams
+    //   videoRef.current!.srcObject = remoteStream
+
+    //   videoRef.current?.play()
+    // })
   }
 
   const onSendMessageClick = () => {
@@ -52,6 +73,8 @@ export const ViewerConnectScreen = () => {
     copy(answer)
     setPhase("wait-connection")
   }
+
+  console.log({ videoRef })
 
   return (
     <div>
@@ -89,6 +112,8 @@ export const ViewerConnectScreen = () => {
           </Button>
         </>
       )}
+
+      <Video ref={videoRef} />
     </div>
   )
 }
@@ -99,3 +124,14 @@ export const ViewerConnectScreen = () => {
 // - connected
 
 //
+
+type VideoProps = {}
+
+const Video = React.forwardRef<HTMLVideoElement, VideoProps>((props, ref) => {
+  useEffect(() => {
+    //
+    // ref.play()
+  }, [])
+
+  return <video ref={ref} width="800" height="600"></video>
+})

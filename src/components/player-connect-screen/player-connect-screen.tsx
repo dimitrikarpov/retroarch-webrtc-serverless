@@ -3,6 +3,8 @@ import { Button } from "../ui/button/button"
 import { useConnection } from "../connection-context"
 import { Textarea } from "../ui/button/textarea"
 import { useCopyToClipboard } from "../../lib/use-copy-to-clipboard"
+import { Emulator } from "./Emulator"
+import { type Retroarch as RetroarchCore } from "retroarch-core"
 
 type Core = "fceumm_libretro" | "genesis_plus_gx_libretro" | "snes9x"
 
@@ -11,26 +13,23 @@ export const PlayerConnectScreen = () => {
   const [answer, setAnswer] = useState<string>()
   const { peerConnectionRef, connectionState } = useConnection()
   const [value, copy] = useCopyToClipboard()
-  const isCreateOfferInProgressRef = useRef(false)
+  // const isCreateOfferInProgressRef = useRef(false)
   const [phase, setPhase] = useState<
-    "create-offer" | "copy-offer" | "wait-answer" | "connected"
-  >("create-offer")
+    | "emulator:setup"
+    | "emulator:started"
+    | "create-offer"
+    | "copy-offer"
+    | "wait-answer"
+    | "connected"
+  >("emulator:setup")
   const [rom, setRom] = useState<Uint8Array>()
   const [core, setCore] = useState<Core>("genesis_plus_gx_libretro")
 
-  useEffect(() => {
-    const makeOffer = async () => {
-      if (isCreateOfferInProgressRef.current || !!offer) return
+  const createOffer = async (stream: MediaStream) => {
+    stream.getTracks().forEach((track) => {
+      peerConnectionRef.current?.addTrack(track, stream)
+    })
 
-      isCreateOfferInProgressRef.current = true
-      await createOffer()
-      isCreateOfferInProgressRef.current = false
-    }
-
-    makeOffer()
-  }, [])
-
-  const createOffer = async () => {
     /* Create Offer */
     await peerConnectionRef.current?.setLocalDescription(
       await peerConnectionRef.current?.createOffer(),
@@ -81,9 +80,49 @@ export const PlayerConnectScreen = () => {
     setCore(e.target.value as Core)
   }
 
+  console.log({ offer })
+
+  const onEmulatorStart = async (core: RetroarchCore) => {
+    const canvasEl = core.module.canvas
+    const videoStream = canvasEl.captureStream(60)
+    const stream = new MediaStream()
+    videoStream.getTracks().forEach((track) => stream.addTrack(track))
+
+    console.log(1)
+
+    await new Promise((resolve) => {
+      setTimeout(resolve, 1000)
+    })
+
+    console.log(2)
+
+    createOffer(stream)
+  }
+
   return (
     <>
       <h2 className="my-4 text-center text-lg font-bold">Hello, Streamer!</h2>
+
+      {phase === "emulator:setup" && <></>}
+
+      <>
+        <p>select rom</p>
+        <input type="file" onChange={onRomUpload} />
+
+        <p>select platform</p>
+        <select onChange={onCoreChange} value={core}>
+          <option value="genesis_plus_gx_libretro">sega</option>
+          <option value="fceumm_libretro">nes</option>
+        </select>
+
+        {rom && (
+          <Emulator
+            romBinary={rom}
+            coreUrl={`${process.env.PUBLIC_URL}/cores/${core}.js`}
+            onStart={onEmulatorStart}
+          />
+        )}
+      </>
 
       {phase === "create-offer" && (
         <div>
@@ -115,15 +154,6 @@ export const PlayerConnectScreen = () => {
       {phase === "connected" && (
         <>
           <p className="text-lg text-green-500">Connected !!!</p>
-
-          <p>select rom</p>
-          <input type="file" onChange={onRomUpload} />
-
-          <p>select platform</p>
-          <select onChange={onCoreChange} value={core}>
-            <option value="genesis_plus_gx_libretro">sega</option>
-            <option value="fceumm_libretro">nes</option>
-          </select>
         </>
       )}
     </>
@@ -135,3 +165,28 @@ export const PlayerConnectScreen = () => {
 // - copy offer
 // - wait-for-answer
 // - conected
+
+/*
+DATA CHANNEL ONLY
+
+v=0
+o=- 602524030614795352 2 IN IP4 127.0.0.1
+s=-
+t=0 0
+a=group:BUNDLE 0
+a=extmap-allow-mixed
+a=msid-semantic: WMS
+m=application 9 UDP/DTLS/SCTP webrtc-datachannel
+c=IN IP4 0.0.0.0
+a=candidate:4042898560 1 udp 2113937151 11ff9e04-2276-484b-a379-8b482096609c.local 33933 typ host generation 0 network-cost 999
+a=ice-ufrag:jGCo
+a=ice-pwd:NLCduJFlwd8BHt8qx2hJ7AO5
+a=ice-options:trickle
+a=fingerprint:sha-256 CE:AF:6F:5D:41:78:D8:81:DF:2B:40:6E:2E:18:F9:93:D4:B2:60:46:51:88:07:3A:D2:5F:FC:31:69:EE:F8:71
+a=setup:actpass
+a=mid:0
+a=sctp-port:5000
+a=max-message-size:262144
+
+
+*/
