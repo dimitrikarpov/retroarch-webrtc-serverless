@@ -3,8 +3,9 @@ import { SelectRoleScreen } from "./components/select-role-screen/select-role-sc
 import { PlayerConnectScreen } from "./components/player-connect-screen/player-connect-screen"
 import { ViewerConnectScreen } from "./components/viewer-connect-screen/viewer-connect-screen"
 import { Connection } from "./components/connection"
+import { OfflinePlayScreen } from "./components/offline-play-screen/offline-play-screen"
 
-export type Role = "player" | "viewer"
+export type Role = "player" | "viewer" | "offline"
 
 function App() {
   const [role, setRole] = useState<Role>()
@@ -15,6 +16,7 @@ function App() {
       <Connection>
         {role === "player" && <PlayerConnectScreen />}
         {role === "viewer" && <ViewerConnectScreen />}
+        {role === "offline" && <OfflinePlayScreen />}
       </Connection>
     </div>
   )
