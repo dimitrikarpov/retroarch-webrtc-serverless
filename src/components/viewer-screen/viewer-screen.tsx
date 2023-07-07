@@ -1,26 +1,36 @@
-import React, { ChangeEventHandler, useEffect, useRef, useState } from "react"
-import { Button } from "../ui/button/button"
+import { ChangeEventHandler, useEffect, useRef, useState } from "react"
 import { useConnection } from "../connection-context"
-import { Textarea } from "../ui/button/textarea"
 import { useCopyToClipboard } from "../../lib/use-copy-to-clipboard"
+import { Textarea } from "../ui/button/textarea"
+import { Button } from "../ui/button/button"
 
-export const ViewerConnectScreen = () => {
+export const ViewerScreen = () => {
+  const videoRef = useRef<HTMLVideoElement>(null)
   const [offer, setOffer] = useState<string>()
   const [answer, setAnswer] = useState<string>()
-  const { peerConnectionRef, dataChannelRef, connectionState } = useConnection()
+  const { peerConnectionRef, dataChannelRef, connectionState, init } =
+    useConnection()
   const [value, copy] = useCopyToClipboard()
   const [phase, setPhase] = useState<
     "wait-offer" | "copy-answer" | "connected" | "wait-connection"
   >("wait-offer")
-
-  const videoRef = useRef<HTMLVideoElement>(null)
 
   const onOfferChange: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
     setOffer(e.target.value)
   }
 
   const onOfferSet = async () => {
-    setPhase("copy-answer")
+    /* init peer connection */
+
+    console.log(1)
+
+    init()
+
+    await new Promise((resolve) => {
+      setTimeout(resolve, 1000)
+    })
+
+    console.log(2)
 
     peerConnectionRef.current!.ontrack = async (event) => {
       console.log("track event", event)
@@ -47,25 +57,8 @@ export const ViewerConnectScreen = () => {
       setAnswer(peerConnectionRef.current?.localDescription?.sdp)
     }
 
-    // peerConnectionRef.current!.addEventListener("track", async (event) => {
-    //   console.log("track event", event)
-
-    //   const [remoteStream] = event.streams
-    //   videoRef.current!.srcObject = remoteStream
-
-    //   videoRef.current?.play()
-    // })
+    setPhase("copy-answer")
   }
-
-  const onSendMessageClick = () => {
-    dataChannelRef.current?.send("YYHUHUHUHUHUHUHUHU")
-  }
-
-  useEffect(() => {
-    if (connectionState === "connected") {
-      setPhase("connected")
-    }
-  }, [connectionState])
 
   const onAnswerCopyClick = () => {
     if (!answer) return
@@ -74,20 +67,28 @@ export const ViewerConnectScreen = () => {
     setPhase("wait-connection")
   }
 
-  console.log({ videoRef })
+  useEffect(() => {
+    if (connectionState === "connected") {
+      setPhase("connected")
+    }
+  }, [connectionState])
+
+  const onSendMessageClick = () => {
+    dataChannelRef.current?.send("YYHUHUHUHUHUHUHUHU")
+  }
 
   return (
-    <div>
-      <h2>Hello, Viewer!</h2>
+    <div className="flex h-[100dvh] flex-col">
+      <div>
+        <video ref={videoRef} width="800" height="600"></video>
+      </div>
 
       {phase === "wait-offer" && (
         <>
           <p>Paste here Streamer's Connection Offer</p>
 
-          <form>
-            <Textarea value={offer} onChange={onOfferChange} />
-            <Button onClick={onOfferSet}>set offer</Button>
-          </form>
+          <Textarea value={offer} onChange={onOfferChange} />
+          <Button onClick={onOfferSet}>set offer</Button>
         </>
       )}
 
@@ -97,7 +98,6 @@ export const ViewerConnectScreen = () => {
 
           <Textarea disabled value={answer} className="h-40 w-full" />
           <Button onClick={onAnswerCopyClick}>copy Answer to clipboard</Button>
-          {value && <p className="text-orange-700">copied</p>}
         </>
       )}
 
@@ -112,26 +112,6 @@ export const ViewerConnectScreen = () => {
           </Button>
         </>
       )}
-
-      <Video ref={videoRef} />
     </div>
   )
 }
-
-// phases:
-// - wait-offer
-// - copy answer
-// - connected
-
-//
-
-type VideoProps = {}
-
-const Video = React.forwardRef<HTMLVideoElement, VideoProps>((props, ref) => {
-  useEffect(() => {
-    //
-    // ref.play()
-  }, [])
-
-  return <video ref={ref} width="800" height="600"></video>
-})

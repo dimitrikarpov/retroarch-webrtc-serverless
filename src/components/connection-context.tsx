@@ -4,6 +4,7 @@ type ConnectionContext = {
   peerConnectionRef: React.MutableRefObject<RTCPeerConnection | null>
   dataChannelRef: React.MutableRefObject<RTCDataChannel | null>
   connectionState: RTCPeerConnectionState
+  init: () => void
 }
 
 export const ConnectionContext = React.createContext<ConnectionContext | null>(

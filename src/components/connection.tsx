@@ -11,7 +11,7 @@ export const Connection: React.FunctionComponent<Props> = ({ children }) => {
   const [connectionState, setConnectionState] =
     useState<RTCPeerConnectionState>("new")
 
-  useEffect(() => {
+  const init = () => {
     const pc = new RTCPeerConnection(config)
 
     pc.addEventListener(
@@ -32,11 +32,11 @@ export const Connection: React.FunctionComponent<Props> = ({ children }) => {
 
     peerConnectionRef.current = pc
     dataChannelRef.current = dc
-  }, [])
+  }
 
   return (
     <ConnectionContext.Provider
-      value={{ peerConnectionRef, dataChannelRef, connectionState }}
+      value={{ peerConnectionRef, dataChannelRef, connectionState, init }}
     >
       {children}
     </ConnectionContext.Provider>

@@ -2,6 +2,7 @@ import { useState } from "react"
 import { Connection } from "./components/connection"
 import { StartScreen } from "./components/start-screen/start-screen"
 import { PlayerScreen } from "./components/player-screen/player-screen"
+import { ViewerScreen } from "./components/viewer-screen/viewer-screen"
 
 export type Role = "player" | "viewer" | "offline"
 
@@ -24,6 +25,7 @@ function App() {
         />
       )}
       {role === "player" && <PlayerScreen core={core!} rom={rom!} />}
+      {role === "viewer" && <ViewerScreen />}
     </Connection>
   )
 }

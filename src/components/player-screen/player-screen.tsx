@@ -1,7 +1,18 @@
+import { useRef } from "react"
 import { Core } from "../../App"
 import { Button } from "../ui/button/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog"
 import { Emulator } from "./Emulator"
 import { CastIcon } from "lucide-react"
+import { Retroarch } from "retroarch-core"
+import { PlayerConnect } from "./player-connect"
 
 type Props = {
   core: Core
@@ -9,17 +20,32 @@ type Props = {
 }
 
 export const PlayerScreen: React.FunctionComponent<Props> = ({ rom, core }) => {
+  const retroarchRef = useRef<Retroarch | null>(null)
+
   return (
     <div className="flex h-[100dvh] flex-col">
       <Emulator
+        retroarchRef={retroarchRef}
         romBinary={rom}
         coreUrl={`${process.env.PUBLIC_URL}/cores/${core}.js`}
       />
 
       <div className="h-10">
-        <Button variant={"outline"}>
-          <CastIcon />
-        </Button>
+        <Dialog>
+          <DialogTrigger>
+            <Button variant={"outline"}>
+              <CastIcon />
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Share you screen</DialogTitle>
+              <DialogDescription>
+                <PlayerConnect retroarchRef={retroarchRef} />
+              </DialogDescription>
+            </DialogHeader>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   )
