@@ -1,7 +1,7 @@
 import React from "react"
 import { useRef, useState } from "react"
 
-type ConnectionContext = {
+type ConnectionContextType = {
   peerConnectionRef: React.MutableRefObject<RTCPeerConnection | null>
   dataChannelRef: React.MutableRefObject<RTCDataChannel | null>
   connectionState: RTCPeerConnectionState
@@ -18,9 +18,8 @@ type ConnectionContext = {
   setAnswer: (answer: string) => void
 }
 
-export const ConnectionContext = React.createContext<ConnectionContext | null>(
-  null,
-)
+export const ConnectionContext =
+  React.createContext<ConnectionContextType | null>(null)
 
 export function useConnection() {
   const context = React.useContext(ConnectionContext)

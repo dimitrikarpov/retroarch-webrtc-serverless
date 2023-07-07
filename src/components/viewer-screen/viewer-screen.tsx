@@ -10,6 +10,7 @@ export const ViewerScreen = () => {
   const [answer, setAnswer] = useState<string>()
   const { dataChannelRef, connectionState, init, setOfferAndCreateAnswer } =
     useConnection()
+  // eslint-disable-next-line
   const [_, copy] = useCopyToClipboard()
   const [phase, setPhase] = useState<
     "wait-offer" | "copy-answer" | "connected" | "wait-connection"

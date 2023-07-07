@@ -62,6 +62,7 @@ export const PlayerConnect: React.FunctionComponent<Props> = ({
     }
 
     initConnection()
+    // eslint-disable-next-line
   }, [])
 
   const onOfferCopyClick = () => {
