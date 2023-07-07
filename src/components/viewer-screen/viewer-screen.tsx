@@ -34,7 +34,9 @@ export const ViewerScreen = () => {
       offer!,
       (stream) => {
         videoRef.current!.srcObject = stream
-        videoRef.current?.play()
+        setTimeout(() => {
+          videoRef.current?.play()
+        })
       },
       (answer) => {
         setAnswer(answer)

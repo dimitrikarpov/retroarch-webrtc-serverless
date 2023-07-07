@@ -36,8 +36,12 @@ export const PlayerConnect: React.FunctionComponent<Props> = ({
 
       const canvasEl = retroarchRef.current.module.canvas
       const videoStream = canvasEl.captureStream(60)
+      // @ts-ignore
+      const audioStream = retroarchRef.current.module.RA.xdest
+        .stream as MediaStream
       const stream = new MediaStream()
       videoStream.getTracks().forEach((track) => stream.addTrack(track))
+      audioStream.getTracks().forEach((track) => stream.addTrack(track))
 
       console.log(1)
 
