@@ -1,5 +1,5 @@
 import { ChangeEventHandler, useEffect, useRef, useState } from "react"
-import { useConnection } from "../connection-context"
+import { useConnection } from "../connection"
 import { useCopyToClipboard } from "../../lib/use-copy-to-clipboard"
 import { Textarea } from "../ui/textarea"
 import { Button } from "../ui/button"
@@ -8,9 +8,9 @@ export const ViewerScreen = () => {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [offer, setOffer] = useState<string>()
   const [answer, setAnswer] = useState<string>()
-  const { peerConnectionRef, dataChannelRef, connectionState, init } =
+  const { dataChannelRef, connectionState, init, setOfferAndCreateAnswer } =
     useConnection()
-  const [value, copy] = useCopyToClipboard()
+  const [_, copy] = useCopyToClipboard()
   const [phase, setPhase] = useState<
     "wait-offer" | "copy-answer" | "connected" | "wait-connection"
   >("wait-offer")
@@ -20,8 +20,6 @@ export const ViewerScreen = () => {
   }
 
   const onOfferSet = async () => {
-    /* init peer connection */
-
     console.log(1)
 
     init()
@@ -32,30 +30,16 @@ export const ViewerScreen = () => {
 
     console.log(2)
 
-    peerConnectionRef.current!.ontrack = async (event) => {
-      console.log("track event", event)
-
-      const [remoteStream] = event.streams
-      videoRef.current!.srcObject = remoteStream
-
-      videoRef.current?.play()
-    }
-
-    /* create answer */
-    await peerConnectionRef.current?.setRemoteDescription({
-      type: "offer",
-      sdp: offer,
-    })
-
-    await peerConnectionRef.current?.setLocalDescription(
-      await peerConnectionRef.current?.createAnswer(),
+    setOfferAndCreateAnswer(
+      offer!,
+      (stream) => {
+        videoRef.current!.srcObject = stream
+        videoRef.current?.play()
+      },
+      (answer) => {
+        setAnswer(answer)
+      },
     )
-
-    peerConnectionRef.current!.onicecandidate = ({ candidate }) => {
-      if (candidate) return
-
-      setAnswer(peerConnectionRef.current?.localDescription?.sdp)
-    }
 
     setPhase("copy-answer")
   }

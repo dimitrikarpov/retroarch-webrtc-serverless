@@ -1,5 +1,5 @@
 import { ChangeEventHandler, useEffect, useRef, useState } from "react"
-import { useConnection } from "../connection-context"
+import { useConnection } from "../connection"
 import { useCopyToClipboard } from "../../lib/use-copy-to-clipboard"
 import { type Retroarch as RetroarchCore } from "retroarch-core"
 import { Textarea } from "../ui/textarea"
@@ -12,33 +12,16 @@ type Props = {
 export const PlayerConnect: React.FunctionComponent<Props> = ({
   retroarchRef,
 }) => {
-  const { peerConnectionRef, connectionState, init } = useConnection()
+  const { peerConnectionRef, connectionState, init, createOffer, setAnswer } =
+    useConnection()
   const [offer, setOffer] = useState<string>()
-  const [answer, setAnswer] = useState<string>()
+  const [answer, setViewerAnswer] = useState<string>()
   const [value, copy] = useCopyToClipboard()
   const [phase, setPhase] = useState<
     "create-offer" | "copy-offer" | "wait-answer" | "connected"
   >("create-offer")
 
   const isIniting = useRef(false)
-
-  const createOffer = async (stream: MediaStream) => {
-    stream.getTracks().forEach((track) => {
-      peerConnectionRef.current?.addTrack(track, stream)
-    })
-
-    /* Create Offer */
-    await peerConnectionRef.current?.setLocalDescription(
-      await peerConnectionRef.current?.createOffer(),
-    )
-
-    peerConnectionRef.current!.onicecandidate = ({ candidate }) => {
-      if (candidate) return
-
-      setOffer(peerConnectionRef.current?.localDescription?.sdp)
-      setPhase("copy-offer")
-    }
-  }
 
   useEffect(() => {
     const initConnection = async () => {
@@ -66,7 +49,10 @@ export const PlayerConnect: React.FunctionComponent<Props> = ({
 
       console.log(2)
 
-      createOffer(stream)
+      createOffer(stream, (offer) => {
+        setOffer(offer)
+        setPhase("copy-offer")
+      })
 
       isIniting.current = false
     }
@@ -81,15 +67,11 @@ export const PlayerConnect: React.FunctionComponent<Props> = ({
   }
 
   const onAnswerChange: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
-    setAnswer(e.target.value)
+    setViewerAnswer(e.target.value)
   }
 
   const onAnswerConfirm = () => {
-    /* set answer */
-    peerConnectionRef.current?.setRemoteDescription({
-      type: "answer",
-      sdp: answer,
-    })
+    setAnswer(answer!)
   }
 
   useEffect(() => {
