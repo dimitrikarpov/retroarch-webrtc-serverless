@@ -16,7 +16,8 @@ export const PlayerConnect: React.FunctionComponent<Props> = ({
     useConnection()
   const [offer, setOffer] = useState<string>()
   const [answer, setViewerAnswer] = useState<string>()
-  const [value, copy] = useCopyToClipboard()
+  // eslint-disable-next-line
+  const [_, copy] = useCopyToClipboard()
   const [phase, setPhase] = useState<
     "create-offer" | "copy-offer" | "wait-answer" | "connected"
   >("create-offer")
