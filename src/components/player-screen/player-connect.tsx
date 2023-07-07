@@ -68,7 +68,7 @@ export const PlayerConnect: React.FunctionComponent<Props> = ({
 
   const onOfferCopyClick = () => {
     if (!offer) return
-    copy(btoa(offer))
+    copy(offer)
     setPhase("wait-answer")
   }
 
@@ -77,7 +77,7 @@ export const PlayerConnect: React.FunctionComponent<Props> = ({
   }
 
   const onAnswerConfirm = () => {
-    setAnswer(atob(answer!))
+    setAnswer(answer!)
   }
 
   useEffect(() => {
