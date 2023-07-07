@@ -1,6 +1,6 @@
 import { useRef } from "react"
 import { Core } from "../../App"
-import { Button } from "../ui/button/button"
+import { Button } from "../ui/button"
 import {
   Dialog,
   DialogContent,
@@ -9,7 +9,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog"
-import { Emulator } from "./Emulator"
+import { Emulator } from "./emulator"
 import { CastIcon } from "lucide-react"
 import { Retroarch } from "retroarch-core"
 import { PlayerConnect } from "./player-connect"

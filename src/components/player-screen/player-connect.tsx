@@ -2,8 +2,8 @@ import { ChangeEventHandler, useEffect, useRef, useState } from "react"
 import { useConnection } from "../connection-context"
 import { useCopyToClipboard } from "../../lib/use-copy-to-clipboard"
 import { type Retroarch as RetroarchCore } from "retroarch-core"
-import { Textarea } from "../ui/button/textarea"
-import { Button } from "../ui/button/button"
+import { Textarea } from "../ui/textarea"
+import { Button } from "../ui/button"
 
 type Props = {
   retroarchRef: React.MutableRefObject<RetroarchCore | null>

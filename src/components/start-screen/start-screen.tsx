@@ -1,7 +1,7 @@
 import { ChangeEventHandler } from "react"
 import { Core, Role } from "../../App"
-import { Button } from "../ui/button/button"
-import { Card } from "../ui/button/card"
+import { Button } from "../ui/button"
+import { Card } from "../ui/card"
 import {
   Select,
   SelectContent,
@@ -9,7 +9,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/button/select"
+} from "../ui/select"
 
 type Props = {
   rom: Uint8Array | undefined

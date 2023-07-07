@@ -1,8 +1,8 @@
 import { ChangeEventHandler, useEffect, useRef, useState } from "react"
 import { useConnection } from "../connection-context"
 import { useCopyToClipboard } from "../../lib/use-copy-to-clipboard"
-import { Textarea } from "../ui/button/textarea"
-import { Button } from "../ui/button/button"
+import { Textarea } from "../ui/textarea"
+import { Button } from "../ui/button"
 
 export const ViewerScreen = () => {
   const videoRef = useRef<HTMLVideoElement>(null)
