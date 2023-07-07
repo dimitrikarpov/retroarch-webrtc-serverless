@@ -101,8 +101,7 @@ export const PlayerConnect: React.FunctionComponent<Props> = ({
 
       {phase === "copy-offer" && (
         <div>
-          <p>Send this offer using messenger or email</p>
-          <Textarea disabled className="h-40 w-full" value={offer} />
+          <p>Send offer using messenger or email</p>
           <Button onClick={onOfferCopyClick}>Copy Offer to Clipboard</Button>
         </div>
       )}
@@ -115,7 +114,7 @@ export const PlayerConnect: React.FunctionComponent<Props> = ({
             onChange={onAnswerChange}
             className="h-40 w-full"
           />
-          <Button onClick={onAnswerConfirm}>confirm answer</Button>
+          <Button onClick={onAnswerConfirm}>OK</Button>
         </div>
       )}
 

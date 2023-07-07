@@ -81,9 +81,7 @@ export const ViewerScreen = () => {
 
       {phase === "copy-answer" && (
         <>
-          <p>Send these Answer to the Streamer</p>
-
-          <Textarea disabled value={answer} className="h-40 w-full" />
+          <p>Send Answer to the Streamer</p>
           <Button onClick={onAnswerCopyClick}>copy Answer to clipboard</Button>
         </>
       )}
