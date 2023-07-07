@@ -67,7 +67,7 @@ export const PlayerConnect: React.FunctionComponent<Props> = ({
 
   const onOfferCopyClick = () => {
     if (!offer) return
-    copy(offer)
+    copy(btoa(offer))
     setPhase("wait-answer")
   }
 
@@ -76,7 +76,7 @@ export const PlayerConnect: React.FunctionComponent<Props> = ({
   }
 
   const onAnswerConfirm = () => {
-    setAnswer(answer!)
+    setAnswer(atob(answer!))
   }
 
   useEffect(() => {
@@ -104,7 +104,6 @@ export const PlayerConnect: React.FunctionComponent<Props> = ({
           <p>Send this offer using messenger or email</p>
           <Textarea disabled className="h-40 w-full" value={offer} />
           <Button onClick={onOfferCopyClick}>Copy Offer to Clipboard</Button>
-          {value && <p className="text-orange-700">copied</p>}
         </div>
       )}
 

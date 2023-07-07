@@ -29,10 +29,10 @@ export const ViewerScreen = () => {
       setTimeout(resolve, 1000)
     })
 
-    console.log(2)
+    console.log(2, offer)
 
     setOfferAndCreateAnswer(
-      offer!,
+      atob(offer!),
       (stream) => {
         videoRef.current!.srcObject = stream
         setTimeout(() => {
@@ -50,7 +50,7 @@ export const ViewerScreen = () => {
   const onAnswerCopyClick = () => {
     if (!answer) return
 
-    copy(answer)
+    copy(btoa(answer))
     setPhase("wait-connection")
   }
 
