@@ -7,7 +7,7 @@ type ConnectionContextType = {
   connectionState: RTCPeerConnectionState
   init: () => void
   createOffer: (
-    stream: MediaStream,
+    // stream: MediaStream,
     onOfferCreated: (offer: string) => void,
   ) => Promise<void>
   setOfferAndCreateAnswer: (
@@ -43,7 +43,7 @@ export const Connection: React.FunctionComponent<Props> = ({ children }) => {
   const [connectionState, setConnectionState] =
     useState<RTCPeerConnectionState>("new")
 
-  const init = () => {
+  const init = (onMessage?: (e: MessageEvent<any>) => void) => {
     const pc = new RTCPeerConnection(config)
 
     pc.addEventListener(
@@ -55,12 +55,47 @@ export const Connection: React.FunctionComponent<Props> = ({ children }) => {
       true,
     )
 
+    /* player side */
+    pc.onnegotiationneeded = async () => {
+      console.log({
+        connectionState,
+        remoteDescription: pc.remoteDescription?.sdp,
+      })
+
+      if (!pc.remoteDescription?.sdp) return
+
+      console.log("NEOGATION NEEDED")
+      await pc.setLocalDescription(await pc.createOffer())
+      dc.send(JSON.stringify({ description: pc.localDescription }))
+    }
+
     const dc = pc.createDataChannel("chat", {
       negotiated: true,
       id: 0,
     })
     // dc.onopen = () => chat.select()
-    dc.onmessage = (e) => console.log(`> ${e.data}`)
+    dc.onmessage = async (e) => {
+      onMessage?.(e)
+      console.log(`> ${e.data}`)
+
+      let jsonMessage
+      try {
+        jsonMessage = JSON.parse(e.data)
+        console.log("DC:", jsonMessage)
+      } catch (e) {
+        console.log("DC: Not a JSON")
+      }
+
+      if (jsonMessage.description) {
+        console.log("DC: has a description")
+
+        await pc.setRemoteDescription(jsonMessage.description)
+        if (jsonMessage.description.type == "offer") {
+          await pc.setLocalDescription(await pc.createAnswer())
+          dc.send(JSON.stringify({ description: pc.localDescription }))
+        }
+      }
+    }
 
     peerConnectionRef.current = pc
     dataChannelRef.current = dc
@@ -68,12 +103,12 @@ export const Connection: React.FunctionComponent<Props> = ({ children }) => {
 
   /* player side */
   const createOffer = async (
-    stream: MediaStream,
+    // stream: MediaStream,
     onOfferCreated: (offer: string) => void,
   ) => {
-    stream.getTracks().forEach((track) => {
-      peerConnectionRef.current?.addTrack(track, stream)
-    })
+    // stream.getTracks().forEach((track) => {
+    //   peerConnectionRef.current?.addTrack(track, stream)
+    // })
 
     /* Create Offer */
     await peerConnectionRef.current?.setLocalDescription(
@@ -148,3 +183,27 @@ const config = {
     },
   ],
 }
+
+/*
+
+v=0
+o=- 2675846892145110273 2 IN IP4 127.0.0.1
+s=-
+t=0 0
+a=group:BUNDLE 0
+a=extmap-allow-mixed
+a=msid-semantic: WMS
+m=application 9 UDP/DTLS/SCTP webrtc-datachannel
+c=IN IP4 0.0.0.0
+a=candidate:722962450 1 udp 2113937151 490b8afd-a9a1-4b13-829b-89fcc7bfea7d.local 38940 typ host generation 0 network-cost 999
+a=ice-ufrag:ip+o
+a=ice-pwd:TPP2Y/kcn1UinUzGAxTu/gda
+a=ice-options:trickle
+a=fingerprint:sha-256 CA:39:00:B4:6D:4C:C5:9D:1D:99:DF:82:5F:CD:FB:12:A9:B0:F5:74:C3:B1:0D:4D:C2:34:D0:6F:BC:0D:1A:D1
+a=setup:actpass
+a=mid:0
+a=sctp-port:5000
+a=max-message-size:262144
+
+
+*/

@@ -28,36 +28,39 @@ export const PlayerConnect: React.FunctionComponent<Props> = ({
     const initConnection = async () => {
       if (
         !!isIniting.current ||
-        !!peerConnectionRef.current ||
-        !retroarchRef.current
+        !!peerConnectionRef.current
+        // || !retroarchRef.current
       )
         return
 
       isIniting.current = true
 
-      const canvasEl = retroarchRef.current.module.canvas
-      const videoStream = canvasEl.captureStream(60)
-      // @ts-ignore
-      const audioStream = retroarchRef.current.module.RA.xdest
-        .stream as MediaStream
-      const stream = new MediaStream()
-      videoStream.getTracks().forEach((track) => stream.addTrack(track))
-      audioStream.getTracks().forEach((track) => stream.addTrack(track))
+      // const canvasEl = retroarchRef.current.module.canvas
+      // const videoStream = canvasEl.captureStream(60)
+      // // @ts-ignore
+      // const audioStream = retroarchRef.current.module.RA.xdest
+      //   .stream as MediaStream
+      // const stream = new MediaStream()
+      // videoStream.getTracks().forEach((track) => stream.addTrack(track))
+      // audioStream.getTracks().forEach((track) => stream.addTrack(track))
 
-      console.log(1)
+      // console.log(1)
 
       init()
 
-      await new Promise((resolve) => {
-        setTimeout(resolve, 1000)
-      })
+      // await new Promise((resolve) => {
+      //   setTimeout(resolve, 1000)
+      // })
 
-      console.log(2)
+      // console.log(2)
 
-      createOffer(stream, (offer) => {
-        setOffer(offer)
-        setPhase("copy-offer")
-      })
+      createOffer(
+        // stream,
+        (offer) => {
+          setOffer(offer)
+          setPhase("copy-offer")
+        },
+      )
 
       isIniting.current = false
     }
@@ -74,6 +77,8 @@ export const PlayerConnect: React.FunctionComponent<Props> = ({
 
   const onAnswerChange: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
     setViewerAnswer(e.target.value)
+
+    console.log("onAnserChange lenght", e.target.value.length)
   }
 
   const onAnswerConfirm = () => {
