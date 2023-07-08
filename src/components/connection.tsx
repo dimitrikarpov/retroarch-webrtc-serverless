@@ -62,6 +62,12 @@ export const Connection: React.FunctionComponent<Props> = ({ children }) => {
         remoteDescription: pc.remoteDescription?.sdp,
       })
 
+      /* 
+        this prevent executing this code at first time
+        because we don't have signalling service and have to manually send offer and answer via messenger or email
+        this code will run after connection established and "dataChannel" is ready
+        "dataChannel" will be signalling service after connection
+       */
       if (!pc.remoteDescription?.sdp) return
 
       console.log("NEOGATION NEEDED")
@@ -78,22 +84,23 @@ export const Connection: React.FunctionComponent<Props> = ({ children }) => {
       onMessage?.(e)
       console.log(`> ${e.data}`)
 
-      let jsonMessage
       try {
-        jsonMessage = JSON.parse(e.data)
+        const jsonMessage = JSON.parse(e.data)
+
+        /* new remote description */
+        if (jsonMessage.description) {
+          console.log("DC: has a description")
+
+          await pc.setRemoteDescription(jsonMessage.description)
+
+          if (jsonMessage.description.type == "offer") {
+            await pc.setLocalDescription(await pc.createAnswer())
+            dc.send(JSON.stringify({ description: pc.localDescription }))
+          }
+        }
         console.log("DC:", jsonMessage)
       } catch (e) {
         console.log("DC: Not a JSON")
-      }
-
-      if (jsonMessage.description) {
-        console.log("DC: has a description")
-
-        await pc.setRemoteDescription(jsonMessage.description)
-        if (jsonMessage.description.type == "offer") {
-          await pc.setLocalDescription(await pc.createAnswer())
-          dc.send(JSON.stringify({ description: pc.localDescription }))
-        }
       }
     }
 

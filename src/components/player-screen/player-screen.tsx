@@ -23,7 +23,7 @@ type Props = {
 export const PlayerScreen: React.FunctionComponent<Props> = ({ rom, core }) => {
   const retroarchRef = useRef<Retroarch | null>(null)
 
-  const { dataChannelRef, peerConnectionRef, connectionState } = useConnection()
+  const { peerConnectionRef } = useConnection()
 
   const onAfasdfClick = () => {
     // dataChannelRef.current?.send("KKKKKKKKKKKKK")
@@ -43,15 +43,6 @@ export const PlayerScreen: React.FunctionComponent<Props> = ({ rom, core }) => {
       peerConnectionRef.current?.addTrack(track, stream)
     })
   }
-
-  // useEffect(() => {
-  //   if (connectionState === "connected") {
-  //     peerConnectionRef!.current!.onnegotiationneeded = async () => {
-  //       // await pc.setLocalDescription(await pc.createOffer())
-  //       // io.send({ description: pc.localDescription })
-  //     }
-  //   }
-  // }, [connectionState])
 
   return (
     <div className="flex h-[100dvh] flex-col">
