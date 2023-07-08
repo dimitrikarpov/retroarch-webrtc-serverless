@@ -93,7 +93,7 @@ export const Connection: React.FunctionComponent<Props> = ({ children }) => {
 
           await pc.setRemoteDescription(jsonMessage.description)
 
-          if (jsonMessage.description.type == "offer") {
+          if (jsonMessage.description.type === "offer") {
             await pc.setLocalDescription(await pc.createAnswer())
             dc.send(JSON.stringify({ description: pc.localDescription }))
           }
