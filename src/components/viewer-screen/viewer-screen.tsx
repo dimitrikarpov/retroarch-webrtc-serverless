@@ -21,15 +21,7 @@ export const ViewerScreen = () => {
   }
 
   const onOfferSet = async () => {
-    console.log(1)
-
     init()
-
-    await new Promise((resolve) => {
-      setTimeout(resolve, 1000)
-    })
-
-    console.log(2, offer)
 
     setOfferAndCreateAnswer(
       offer!,
